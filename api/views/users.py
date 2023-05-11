@@ -1,15 +1,15 @@
 from flask import Blueprint
 
-auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
+users = Blueprint("users", __name__, url_prefix="/api/v1/users")
 
 
-@auth.route("/", methods=['GET'])
+@users.route("/", methods=['GET'])
 def index():
     return({
         "message": "Hello world, welcome to Bookmark-me REST API"
     }, 200)
     
-@auth.route("/register", methods=['GET'])
+@users.route("/register", methods=['GET'])
 def register():
     return ({
         "message": "User created"
