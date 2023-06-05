@@ -1,7 +1,7 @@
-import datetime
 import string
 import random
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 
 db = SQLAlchemy()
@@ -40,7 +40,7 @@ class Bookmark(db.Model):
         else:
             return picked_characters
 
-
+    
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 

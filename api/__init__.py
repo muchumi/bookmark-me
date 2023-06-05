@@ -1,7 +1,6 @@
 import os
 from flask import Flask
-from api.views.users import users
-from api.views.bookmarks import bookmarks
+from api.views.views import users, bookmarks
 from api.models.models import db
 
 
@@ -16,8 +15,10 @@ def create_app(test_config=None):
         )
     else:
         app.config.from_mapping(test_config)
-        db.app=app
-        db.init_app(app)
+
+    db.app=app
+    db.init_app(app)
+
     """
         Registering Blueprints to the app instance
     """
@@ -25,8 +26,6 @@ def create_app(test_config=None):
     app.register_blueprint(bookmarks)
 
     return app
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
