@@ -1,7 +1,8 @@
 import validators
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED
+from flask_jwt_extended import create_access_token, create_refresh_token
+from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK
 from api.models.models import User, Bookmark, db
 
 
@@ -69,4 +70,29 @@ def register():
             "username": username, "email": email
         }
     }), HTTP_201_CREATED
+
+# The route that allows a user to login
+@users.route("/login", methods = ['POST'])
+def login():
+    email = request.json.get('email', ' ')
+    password = request.json.get('password', ' ')
+
+    # Checking if this user exists
+    user = User.query.filter_by(email=email).first()
+    if user:
+        is_password_correct = check_password_hash(user.password, password)
+        if is_password_correct:
+            refresh = create_refresh_token(identity=user.id)
+            access = create_refresh_token(identity=user.id)
+            return jsonify({
+                "user": {
+                    "refresh": refresh,
+                    "access": access,
+                    "username": user.username,
+                    "email": user.email
+                }
+            }), HTTP_200_OK
+        return jsonify({
+            "error": "Credentials provided are invalid"
+        }), HTTP_401_UNAUTHORIZED
 
