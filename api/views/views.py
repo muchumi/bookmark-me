@@ -1,7 +1,7 @@
 import validators
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK
 from api.models.models import User, Bookmark, db
 
@@ -83,7 +83,7 @@ def login():
         is_password_correct = check_password_hash(user.password, password)
         if is_password_correct:
             refresh = create_refresh_token(identity=user.id)
-            access = create_refresh_token(identity=user.id)
+            access = create_access_token(identity=user.id)
             return jsonify({
                 "user": {
                     "refresh": refresh,
@@ -96,3 +96,13 @@ def login():
             "error": "Credentials provided are invalid"
         }), HTTP_401_UNAUTHORIZED
 
+
+@users.route("/me", methods = ['GET'])
+@jwt_required()
+def me():
+    user_id=get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
+    return jsonify({
+        "username": user.username,
+        "email": user.email
+    }), HTTP_200_OK
