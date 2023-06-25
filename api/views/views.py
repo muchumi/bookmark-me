@@ -96,7 +96,7 @@ def login():
             "error": "Credentials provided are invalid"
         }), HTTP_401_UNAUTHORIZED
 
-
+# Protecting the # me route
 @users.route("/me", methods = ['GET'])
 @jwt_required()
 def me():
@@ -106,3 +106,16 @@ def me():
         "username": user.username,
         "email": user.email
     }), HTTP_200_OK
+
+# Generating user refresh tokens
+@users.route("/token/refresh", methods = ['GET'])
+@jwt_required(refresh=True)
+def refresh_users_token():
+    # Getting user's id using get_jwt_identity() method
+    identity = get_jwt_identity()
+    refresh = create_refresh_token(identity=identity)
+
+    return jsonify({
+        "refresh": refresh
+    }), HTTP_200_OK
+
