@@ -22,9 +22,9 @@ class User(db.Model):
 class Bookmark(db.Model):
     __tablename__='bookmark'
     id=db.Column(db.Integer, primary_key=True)
-    body=db.Column(db.Text, nullable=True)
     url=db.Column(db.Text, nullable=False)
     short_url=db.Column(db.String(5), nullable=False)
+    body=db.Column(db.Text, nullable=True)
     bookmark_visits=db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at=db.Column(db.DateTime, default=datetime.now)

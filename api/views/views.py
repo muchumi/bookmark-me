@@ -119,3 +119,58 @@ def refresh_users_token():
         "refresh": refresh
     }), HTTP_200_OK
 
+@bookmarks.route('/create_bookmarks', methods=['POST'])
+@jwt_required()
+def create_bookmarks():
+    current_user = get_jwt_identity()
+    if request.method == 'POST':
+        url = request.get_json().get('url', ' ')
+        body = request.get_json().get('body', ' ')
+        
+        # Checking if the url entered by user is valid
+        if not validators.url(url):
+            return jsonify({
+                "error": "Url provided is invalid"
+            }), HTTP_400_BAD_REQUEST
+        
+        # Checking if the url already exists
+        if Bookmark.query.filter_by(url=url).first() is not None:
+            return jsonify({
+                "error": "Url already exists"
+            }), HTTP_409_CONFLICT
+        
+        bookmark = Bookmark(url=url, body=body, user_id=current_user)
+        db.session.add(bookmark)
+        db.session.commit()
+
+        return jsonify({
+            "id": bookmark.id,
+            "url": bookmark.url,
+            "short_url": bookmark.short_url,
+            "body": bookmark.body,
+            "visits": bookmark.bookmark_visits,
+            "created_at": bookmark.created_at,
+            "updated_at": bookmark.updated_at
+
+        }), HTTP_201_CREATED
+    
+# Get all bookmarks
+@bookmarks.route('/get_bookmarks', methods=['GET'])
+@jwt_required()
+def get_bookmarks():
+    current_user = get_jwt_identity()
+    bookmarks = Bookmark.query.filter_by(user_id=current_user)
+    data = []
+    for bookmark in bookmarks:
+        data.append({
+            "id": bookmark.id,
+            "url": bookmark.url,
+            "short_url": bookmark.short_url,
+            "body": bookmark.body,
+            "visits": bookmark.bookmark_visits,
+            "created_at": bookmark.created_at,
+            "updated_at": bookmark.updated_at
+        })
+    return jsonify({
+        "data": data
+    }), HTTP_200_OK
