@@ -113,12 +113,13 @@ def me():
 def refresh_users_token():
     # Getting user's id using get_jwt_identity() method
     identity = get_jwt_identity()
-    refresh = create_refresh_token(identity=identity)
+    access = create_access_token(identity=identity)
 
     return jsonify({
-        "refresh": refresh
+        "access": access
     }), HTTP_200_OK
 
+# A route to create a bookmark
 @bookmarks.route('/create_bookmarks', methods=['POST'])
 @jwt_required()
 def create_bookmarks():
@@ -154,14 +155,16 @@ def create_bookmarks():
 
         }), HTTP_201_CREATED
     
-# Get all bookmarks
+# A route to get all bookmarks
 @bookmarks.route('/get_bookmarks', methods=['GET'])
 @jwt_required()
 def get_bookmarks():
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 5, type=int)
     current_user = get_jwt_identity()
-    bookmarks = Bookmark.query.filter_by(user_id=current_user)
+    bookmarks = Bookmark.query.filter_by(user_id=current_user).paginate(page=page, per_page=per_page)
     data = []
-    for bookmark in bookmarks:
+    for bookmark in bookmarks.items:
         data.append({
             "id": bookmark.id,
             "url": bookmark.url,
@@ -170,7 +173,17 @@ def get_bookmarks():
             "visits": bookmark.bookmark_visits,
             "created_at": bookmark.created_at,
             "updated_at": bookmark.updated_at
-        })
+        })                   
+        meta={
+            "page": bookmarks.page,
+            "pages": bookmarks.pages,
+            "total_count": bookmarks.total,
+            "previous_page": bookmarks.prev_num,
+            "next_page": bookmarks.next_num,
+            "has_next": bookmarks.has_next,
+            "has_previous": bookmarks.has_prev
+        }
     return jsonify({
-        "data": data
+        "data": data,
+        "meta": meta
     }), HTTP_200_OK
