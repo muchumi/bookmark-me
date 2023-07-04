@@ -2,7 +2,7 @@ import validators
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
-from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK
+from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_404_NOT_FOUND
 from api.models.models import User, Bookmark, db
 
 
@@ -120,7 +120,7 @@ def refresh_users_token():
     }), HTTP_200_OK
 
 # A route to create a bookmark
-@bookmarks.route('/create_bookmarks', methods=['POST'])
+@bookmarks.route('/', methods=['POST'])
 @jwt_required()
 def create_bookmarks():
     current_user = get_jwt_identity()
@@ -155,8 +155,8 @@ def create_bookmarks():
 
         }), HTTP_201_CREATED
     
-# A route to get all bookmarks
-@bookmarks.route('/get_bookmarks', methods=['GET'])
+# A route to retrieve all bookmarks
+@bookmarks.route('/', methods=['GET'])
 @jwt_required()
 def get_bookmarks():
     page = request.args.get('page', 1, type=int)
@@ -187,3 +187,30 @@ def get_bookmarks():
         "data": data,
         "meta": meta
     }), HTTP_200_OK
+
+
+# A route to retrieve a single bookmark
+@bookmarks.route("/<int:id>", methods = ['GET'])
+@jwt_required()
+def get_bookmark(id):
+    current_user = get_jwt_identity()
+    bookmark = Bookmark.query.filter_by(user_id=current_user, id=id).first()
+
+    if not bookmark:
+        return jsonify({
+            "error": "Bookmark not found"
+        }), HTTP_404_NOT_FOUND
+    return jsonify({
+        "id": bookmark.id,
+        "url": bookmark.url,
+        "short_url": bookmark.short_url,
+        "body": bookmark.body,
+        "visits": bookmark.bookmark_visits,
+        "created_at": bookmark.created_at,
+        "updated_at": bookmark.updated_at
+    }), HTTP_200_OK
+
+
+
+
+
