@@ -211,6 +211,63 @@ def get_bookmark(id):
     }), HTTP_200_OK
 
 
+# A route to edit a bookmark
+@bookmarks.route('/<int:id>', methods = ['PUT'])
+@jwt_required()
+def edit_bookmark(id):
+    current_user = get_jwt_identity()
+    bookmark = Bookmark.query.filter_by(user_id=current_user, id=id).first()
+
+    if not bookmark:
+        return jsonify({
+            "error": "Bookmark not found"
+        }), HTTP_404_NOT_FOUND
+    
+    url = request.get_json().get('url', ' ')
+    body = request.get_json().get('body', ' ')
+
+    if not validators.url(url):
+        return jsonify({
+            "error": "Url provided is invalid"
+        }), HTTP_400_BAD_REQUEST
+    
+    # Updating bookmark properties
+    bookmark.url=url
+    bookmark.body=body
+    db.session.commit()
+    return jsonify({
+        "id": bookmark.id,
+        "url": bookmark.url,
+        "short_url": bookmark.short_url,
+        "body": bookmark.body,
+        "visits": bookmark.bookmark_visits,
+        "created_at": bookmark.created_at,
+        "updated_at": bookmark.updated_at
+    }), HTTP_200_OK
+
+# A route to delete a bookmark
+@bookmarks.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_bookmark(id):
+    current_user = get_jwt_identity()
+    bookmark=Bookmark.query.filter_by(user_id=current_user, id=id).first()
+
+    if not bookmark:
+        return jsonify({
+            "error": "Bookmark not found"
+        }), HTTP_404_NOT_FOUND
+    
+    db.session.delete(bookmark)
+    db.session.commit()
+    return jsonify({
+        "message": "Bookmark deleted successfully"
+    }), HTTP_200_OK
+
+
+    
+
+
+
 
 
 
