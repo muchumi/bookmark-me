@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from api.views.views import users, bookmarks
+from api.views.views import users, bookmarks, tracker
 from api.models.models import db
 
 
@@ -28,7 +28,7 @@ def create_app(test_config=None):
     """
     app.register_blueprint(users)
     app.register_blueprint(bookmarks)
-
+    app.register_blueprint(tracker)
     return app
 
  

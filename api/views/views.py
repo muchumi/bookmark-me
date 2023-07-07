@@ -1,14 +1,22 @@
 import validators
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_404_NOT_FOUND
 from api.models.models import User, Bookmark, db
 
-
+# Users Blueprint
 users = Blueprint("users", __name__, url_prefix="/api/v1/users")
 
+# Bookmarks Blueprint
 bookmarks = Blueprint("bookmarks", __name__, url_prefix="/api/v1/bookmarks")
+
+# Tracker Blueprint
+tracker = Blueprint("tracker", __name__, url_prefix="/api/v1/tracker")
+
+"""
+    All users endpoints.
+"""
 
 @users.route("/", methods=['GET'])
 def index():
@@ -119,6 +127,9 @@ def refresh_users_token():
         "access": access
     }), HTTP_200_OK
 
+"""
+    All bookmarks endpoints.
+"""
 # A route to create a bookmark
 @bookmarks.route('/', methods=['POST'])
 @jwt_required()
@@ -264,7 +275,17 @@ def delete_bookmark(id):
     }), HTTP_200_OK
 
 
-    
+"""
+    Click link tracker endpoint.
+""" 
+@tracker.route('/<short_url>', methods = ['GET'])
+def redirect_to_url(short_url):
+    bookmark = Bookmark.query.filter_by(short_url=short_url).first_or_404()
+
+    if bookmark:
+        bookmark.visits = bookmark.visits+1
+        db.session.commit()
+        return redirect(bookmark.url)
 
 
 
