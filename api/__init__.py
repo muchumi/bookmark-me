@@ -1,8 +1,11 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
-from api.views.views import users, bookmarks, tracker
+from api.views.users import users
+from api.views.bookmarks import bookmarks
+from api.views.tracker import tracker
 from api.models.models import db
+from api.constants.status_codes import *
 
 
 def create_app(test_config=None):
@@ -29,6 +32,23 @@ def create_app(test_config=None):
     app.register_blueprint(users)
     app.register_blueprint(bookmarks)
     app.register_blueprint(tracker)
+
+    """
+        Error handlers
+    """
+
+    @app.errorhandler(HTTP_404_NOT_FOUND)
+    def handle_404(e):
+        return jsonify({
+            "error": "Not Found"
+        }), HTTP_404_NOT_FOUND
+
+    @app.errorhandler(HTTP_500_INTERNAL_SERVER_ERROR)
+    def handle_500(e):
+        return jsonify({
+            "error": "Something went wrong, working on it!"
+        }), HTTP_500_INTERNAL_SERVER_ERROR
+
     return app
 
  
