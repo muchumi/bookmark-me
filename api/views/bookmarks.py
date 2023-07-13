@@ -154,3 +154,24 @@ def delete_bookmark(id):
         "message": "Bookmark deleted successfully"
     }), HTTP_200_OK
 
+# A route that gives statistics of the visits done to a bookmark
+@bookmarks.route("/statistics", methods=['GET'])
+@jwt_required()
+def get_statistics():
+    current_user = get_jwt_identity()
+    data=[]
+    bookmarks = Bookmark.query.filter_by(user_id=current_user).all()
+
+    for bookmark in bookmarks:
+        results={
+            "id": bookmark.id,
+            "url": bookmark.url,
+            "short_url": bookmark.short_url,
+            "visits": bookmark.bookmark_visits
+        }
+        data.append(results)
+    return jsonify({
+        "data": data
+    }), HTTP_200_OK
+
+
