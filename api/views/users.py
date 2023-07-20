@@ -2,6 +2,7 @@ import validators
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from flasgger import swag_from
 from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_200_OK
 from api.models.models import User, db
 
@@ -76,6 +77,7 @@ def register():
 
 # The route that allows a user to login
 @users.route("/login", methods = ['POST'])
+@swag_from('./docs/users/login.yaml')
 def login():
     email = request.json.get('email', ' ')
     password = request.json.get('password', ' ')
