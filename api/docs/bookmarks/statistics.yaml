@@ -1,0 +1,17 @@
+GET Statistics about Bookmarks
+---
+tags: 
+  - Bookmarks
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+
+
+responses:
+  200:
+    description: Bookmarks statistics
+  
+  401:
+    description: Fails to get results due to authentication error

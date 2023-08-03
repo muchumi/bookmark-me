@@ -1,6 +1,7 @@
 import validators
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flasgger import swag_from
 from api.constants.status_codes import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT, HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND
 from api.models.models import Bookmark, db
 
@@ -157,6 +158,7 @@ def delete_bookmark(id):
 # A route that gives statistics of the visits done to a bookmark
 @bookmarks.route("/statistics", methods=['GET'])
 @jwt_required()
+@swag_from('./docs/bookmarks/statistics.yaml')
 def get_statistics():
     current_user = get_jwt_identity()
     data=[]

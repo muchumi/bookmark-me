@@ -21,6 +21,7 @@ def index():
     }, 200)
     
 @users.route("/register", methods=['POST'])
+@swag_from('./docs/users/register.yaml')
 def register():
     username = request.json['username']
     email = request.json['email']
@@ -77,7 +78,7 @@ def register():
 
 # The route that allows a user to login
 @users.route("/login", methods = ['POST'])
-@swag_from('./docs/users/login.yml')
+@swag_from('./docs/users/login.yaml')
 def login():
     email = request.json.get('email', ' ')
     password = request.json.get('password', ' ')
