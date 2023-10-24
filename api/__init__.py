@@ -21,8 +21,8 @@ def create_app(test_config=None):
             SQLALCHEMY_TRACK_MODIFICATIONS = False,
             JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY"),
             SWAGGER={
-                "title": "Bookmark-me API",
-                "uiversion": 3.0
+                'title': "Bookmark-me API",
+                'uiversion': 3.0
             }
         )
     else:
@@ -54,7 +54,7 @@ def create_app(test_config=None):
     @app.errorhandler(HTTP_500_INTERNAL_SERVER_ERROR)
     def handle_500(e):
         return jsonify({
-            "error": "Something went wrong, working on it!"
+            "error": "Something went wrong!"
         }), HTTP_500_INTERNAL_SERVER_ERROR
 
     return app
