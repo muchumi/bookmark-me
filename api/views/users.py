@@ -83,7 +83,7 @@ def login():
     email = request.json.get('email', ' ')
     password = request.json.get('password', ' ')
 
-    # Checking if this user exists
+    # Check if this user exists
     user = User.query.filter_by(email=email).first()
     if user:
         is_password_correct = check_password_hash(user.password, password)
