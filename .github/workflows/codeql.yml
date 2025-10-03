@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL"
 
 on:
   push:
@@ -11,19 +11,19 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     permissions:
       security-events: write
+      contents: read
       packages: read
       actions: read
-      contents: read
 
     strategy:
       fail-fast: false
       matrix:
         include:
           - language: c-cpp
-            build-mode: manual     # ✅ We’re doing a manual build for C/C++
+            build-mode: manual
           - language: javascript-typescript
             build-mode: none
           - language: python
@@ -33,21 +33,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 👇 Install dependencies for building (optional: update as needed)
       - name: Install build dependencies
         if: matrix.language == 'c-cpp'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+          sudo apt-get install -y cmake g++ make
 
-      # 👇 Initialize CodeQL with the correct language and build mode
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      # 👇 Manual build step only runs for c-cpp
       - name: Build C/C++ project manually
         if: matrix.build-mode == 'manual'
         run: |
@@ -56,7 +53,6 @@ jobs:
           cmake ..
           make -j$(nproc)
 
-      # 👇 Perform analysis after build
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
